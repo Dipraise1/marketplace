@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { users } from '@/lib/data'
 
 const tabs = ['All', 'Sellers', 'Buyers', 'Banned (17)']
@@ -7,12 +7,11 @@ const tabs = ['All', 'Sellers', 'Buyers', 'Banned (17)']
 export default function UsersPage() {
   const [activeTab, setActiveTab] = useState(0)
 
-  const filtered = useMemo(() => {
-    if (activeTab === 1) return users.filter(u => u.role === 'Seller')
-    if (activeTab === 2) return users.filter(u => u.role === 'Buyer')
-    if (activeTab === 3) return users.filter(u => u.status === 'banned')
-    return users
-  }, [activeTab])
+  const filtered =
+    activeTab === 1 ? users.filter(u => u.role === 'Seller') :
+    activeTab === 2 ? users.filter(u => u.role === 'Buyer') :
+    activeTab === 3 ? users.filter(u => u.status === 'banned') :
+    users
 
   return (
     <div>

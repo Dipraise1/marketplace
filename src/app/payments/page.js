@@ -1,18 +1,17 @@
 'use client'
-import { useState, useMemo } from 'react'
-import { transactions as allTransactions } from '@/lib/data'
+import { useState } from 'react'
+import { transactions } from '@/lib/data'
 
 const tabs = ['All', 'Payments In', 'Refunds', 'Payouts']
 
 export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState(0)
 
-  const filtered = useMemo(() => {
-    if (activeTab === 1) return allTransactions.filter(tx => tx.type === 'Payment')
-    if (activeTab === 2) return allTransactions.filter(tx => tx.type === 'Refund')
-    if (activeTab === 3) return allTransactions.filter(tx => tx.type === 'Payout')
-    return allTransactions
-  }, [activeTab])
+  const filtered =
+    activeTab === 1 ? transactions.filter(tx => tx.type === 'Payment') :
+    activeTab === 2 ? transactions.filter(tx => tx.type === 'Refund') :
+    activeTab === 3 ? transactions.filter(tx => tx.type === 'Payout') :
+    transactions
 
   return (
     <div>
