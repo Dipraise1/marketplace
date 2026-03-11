@@ -7,7 +7,7 @@ export default function AdminShell({ children }) {
   const [open, setOpen] = useState(false)
   return (
     <>
-      {open && <div className="overlay open" onClick={() => setOpen(false)} />}
+      <div className={`overlay${open ? ' open' : ''}`} onClick={() => setOpen(false)} />
       <Sidebar open={open} onClose={() => setOpen(false)} />
       <div className="main">
         <Topbar onMenu={() => setOpen(true)} />

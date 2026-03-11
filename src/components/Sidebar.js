@@ -14,7 +14,7 @@ const navItems = [
   { label: 'Settings', href: '/settings', icon: '\u2699' },
 ]
 
-export default function Sidebar({ open }) {
+export default function Sidebar({ open, onClose }) {
   const pathname = usePathname()
 
   return (
@@ -43,6 +43,7 @@ export default function Sidebar({ open }) {
               key={item.href}
               href={item.href}
               className={`nav-item${isActive ? ' active' : ''}`}
+              onClick={onClose}
             >
               <i className="nav-ic">{item.icon}</i>
               {item.label}
