@@ -89,8 +89,8 @@ export default function ApprovedPage() {
             <tbody>
               {approvedItems.map((item) => (
                 <tr key={item.id}>
-                  <td><input type="checkbox" className="cb" /></td>
-                  <td>
+                  <td className="td-hide"><input type="checkbox" className="cb" /></td>
+                  <td data-label="Item">
                     <div className="item-cell">
                       <img
                         src={item.image}
@@ -105,12 +105,12 @@ export default function ApprovedPage() {
                       </div>
                     </div>
                   </td>
-                  <td><span className="tag">{item.game}</span></td>
-                  <td>{item.seller}</td>
-                  <td className="price-val">{item.price}</td>
-                  <td style={{ color: 'var(--muted)' }}>{item.views}</td>
-                  <td style={{ color: 'var(--muted)' }}>{item.listed}</td>
-                  <td>
+                  <td data-label="Game"><span className="tag">{item.game}</span></td>
+                  <td data-label="Seller">{item.seller}</td>
+                  <td data-label="Price" className="price-val">{item.price}</td>
+                  <td className="td-hide">{item.views}</td>
+                  <td className="td-hide">{item.listed}</td>
+                  <td data-label="Action">
                     <div className="acts">
                       <button className="act a-edit">Edit</button>
                       <button className="act a-reject">Remove</button>

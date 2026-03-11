@@ -184,8 +184,8 @@ export default function PendingPage() {
               )}
               {filtered.map((order) => (
                 <tr key={order.id}>
-                  <td style={{ fontWeight: 700, color: 'var(--accent)' }}>{order.id}</td>
-                  <td>
+                  <td data-label="Order" style={{ fontWeight: 700, color: 'var(--accent)' }}>{order.id}</td>
+                  <td data-label="Item">
                     <div className="item-cell">
                       <img src={order.itemImage} width={30} height={30} style={{ borderRadius: '5px' }} alt={order.item} />
                       <div>
@@ -194,17 +194,17 @@ export default function PendingPage() {
                       </div>
                     </div>
                   </td>
-                  <td>{order.buyer}</td>
-                  <td>{order.seller}</td>
-                  <td><span className="tag">{order.game}</span></td>
-                  <td className="price-val">{order.amount}</td>
-                  <td style={{ color: 'var(--muted)' }}>{order.placed}</td>
-                  <td>
+                  <td data-label="Buyer">{order.buyer}</td>
+                  <td className="td-hide">{order.seller}</td>
+                  <td className="td-hide"><span className="tag">{order.game}</span></td>
+                  <td data-label="Amount" className="price-val">{order.amount}</td>
+                  <td data-label="Placed" style={{ color: 'var(--muted)' }}>{order.placed}</td>
+                  <td data-label="Status">
                     <span className={`pill ${statusPill(order.status)}`}>
                       {statusLabel(order.status)}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Action">
                     <div className="acts">
                       {order.status === 'delivery' && (
                         <>

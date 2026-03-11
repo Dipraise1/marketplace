@@ -113,8 +113,8 @@ export default function UsersPage() {
             <tbody>
               {users.map((user) => (
                 <tr key={user.username}>
-                  <td><input type="checkbox" className="cb" /></td>
-                  <td>
+                  <td className="td-hide"><input type="checkbox" className="cb" /></td>
+                  <td data-label="User">
                     <div className="item-cell">
                       <img
                         src={user.image}
@@ -129,20 +129,24 @@ export default function UsersPage() {
                       </div>
                     </div>
                   </td>
-                  <td><span className="tag">{user.role}</span></td>
-                  <td style={{ color: 'var(--muted)' }}>{user.email}</td>
-                  <td>{user.listings}</td>
-                  <td>{user.orders}</td>
-                  <td className={user.sales === '$0' ? '' : 'price-val'} style={user.sales === '$0' ? { color: 'var(--muted)' } : undefined}>
+                  <td data-label="Role"><span className="tag">{user.role}</span></td>
+                  <td className="td-hide">{user.email}</td>
+                  <td className="td-hide">{user.listings}</td>
+                  <td className="td-hide">{user.orders}</td>
+                  <td
+                    data-label="Sales"
+                    className={user.sales === '$0' ? '' : 'price-val'}
+                    style={user.sales === '$0' ? { color: 'var(--muted)' } : undefined}
+                  >
                     {user.sales}
                   </td>
-                  <td style={{ color: 'var(--muted)' }}>{user.joined}</td>
-                  <td>
+                  <td className="td-hide">{user.joined}</td>
+                  <td data-label="Status">
                     <span className={`pill p-${user.status}`}>
                       {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Action">
                     <div className="acts">
                       <button className="act a-view">View</button>
                       {user.status !== 'banned' && (

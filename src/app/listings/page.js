@@ -177,9 +177,9 @@ export default function ListingsPage() {
               )}
               {filtered.map((item) => (
                 <tr key={item.id}>
-                  <td><input type="checkbox" className="cb" /></td>
-                  <td style={{ color: 'var(--muted)' }}>{item.id}</td>
-                  <td>
+                  <td className="td-hide"><input type="checkbox" className="cb" /></td>
+                  <td className="td-hide" style={{ color: 'var(--muted)' }}>{item.id}</td>
+                  <td data-label="Item">
                     <div className="item-cell">
                       <img src={item.image} width={30} height={30} style={{ borderRadius: '5px' }} alt={item.name} />
                       <div>
@@ -188,18 +188,18 @@ export default function ListingsPage() {
                       </div>
                     </div>
                   </td>
-                  <td><span className="tag">{item.game}</span></td>
-                  <td><span className="tag">{item.category}</span></td>
-                  <td>{item.seller}</td>
-                  <td className="price-val">{item.price}</td>
-                  <td style={{ color: 'var(--muted)' }}>{item.views}</td>
-                  <td style={{ color: 'var(--muted)' }}>{item.listed}</td>
-                  <td>
+                  <td data-label="Game"><span className="tag">{item.game}</span></td>
+                  <td className="td-hide"><span className="tag">{item.category}</span></td>
+                  <td data-label="Seller">{item.seller}</td>
+                  <td data-label="Price" className="price-val">{item.price}</td>
+                  <td className="td-hide" style={{ color: 'var(--muted)' }}>{item.views}</td>
+                  <td className="td-hide" style={{ color: 'var(--muted)' }}>{item.listed}</td>
+                  <td data-label="Status">
                     <span className={`pill p-${item.status}`}>
                       {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Action">
                     <div className="acts">
                       {item.status === 'pending' && (
                         <>

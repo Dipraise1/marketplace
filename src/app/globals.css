@@ -704,6 +704,70 @@ textarea.input { resize: vertical; min-height: 70px; font-family: inherit; }
   .three-col { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 640px) {
+  /* Page header */
+  .ph { flex-direction: column; align-items: flex-start; }
+  .ph-right { width: 100%; }
+
+  /* Filter bar — stack inputs */
+  .filter-bar { flex-direction: column; gap: 6px; }
+  .filter-bar .filter-input { width: 100% !important; }
+
+  /* Panel header wraps */
+  .panel-hd { gap: 8px; }
+
+  /* Table → card layout */
+  .tbl-wrap { overflow-x: visible; }
+  .tbl-wrap table,
+  .tbl-wrap tbody { display: block; }
+  .tbl-wrap thead { display: none; }
+
+  .tbl-wrap tr {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .tbl-wrap td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+    white-space: normal;
+    font-size: 12px;
+    gap: 10px;
+    text-align: right;
+  }
+
+  .tbl-wrap td:last-child { border-bottom: none !important; }
+
+  .tbl-wrap td::before {
+    content: attr(data-label);
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    text-align: left;
+    min-width: 60px;
+  }
+
+  /* Hide non-essential columns on mobile */
+  .tbl-wrap td.td-hide { display: none; }
+
+  /* Action buttons wrap */
+  .acts { flex-wrap: wrap; justify-content: flex-end; }
+
+  /* Pagination */
+  .pager { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .pager-btns .pg-btn.pg-ellipsis,
+  .pager-btns .pg-btn.pg-far { display: none; }
+}
+
 @media (max-width: 420px) {
   .stats { gap: 8px; }
   .stat-val { font-size: 18px; }

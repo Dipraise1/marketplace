@@ -107,12 +107,13 @@ export default function PaymentsPage() {
             <tbody>
               {transactions.map((tx) => (
                 <tr key={tx.txnId}>
-                  <td style={{ color: 'var(--muted)', fontSize: '11px' }}>{tx.txnId}</td>
-                  <td><span className={`pill ${tx.typeClass}`}>{tx.type}</span></td>
-                  <td>{tx.from}</td>
-                  <td>{tx.to}</td>
-                  <td style={{ color: 'var(--muted)' }}>{tx.item}</td>
+                  <td className="td-hide" style={{ fontSize: '11px' }}>{tx.txnId}</td>
+                  <td data-label="Type"><span className={`pill ${tx.typeClass}`}>{tx.type}</span></td>
+                  <td data-label="From">{tx.from}</td>
+                  <td data-label="To">{tx.to}</td>
+                  <td className="td-hide">{tx.item}</td>
                   <td
+                    data-label="Amount"
                     className={tx.amountClass === 'price-val' ? 'price-val' : undefined}
                     style={
                       tx.amountClass === 'neg-val'
@@ -124,8 +125,9 @@ export default function PaymentsPage() {
                   >
                     {tx.amount}
                   </td>
-                  <td style={{ color: 'var(--muted)' }}>{tx.fee}</td>
+                  <td className="td-hide">{tx.fee}</td>
                   <td
+                    data-label="Net"
                     style={
                       tx.netClass === 'neg-val'
                         ? { color: 'var(--red)', fontWeight: 600 }
@@ -136,8 +138,8 @@ export default function PaymentsPage() {
                   >
                     {tx.net}
                   </td>
-                  <td style={{ color: 'var(--muted)' }}>{tx.date}</td>
-                  <td>
+                  <td data-label="Date" style={{ color: 'var(--muted)' }}>{tx.date}</td>
+                  <td data-label="Status">
                     <span className={`pill p-${tx.status}`}>
                       {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
                     </span>
