@@ -1,8 +1,19 @@
-import { transactions } from '@/lib/data'
+'use client'
+import { useState, useMemo } from 'react'
+import { transactions as allTransactions } from '@/lib/data'
 
 const tabs = ['All', 'Payments In', 'Refunds', 'Payouts']
 
 export default function PaymentsPage() {
+  const [activeTab, setActiveTab] = useState(0)
+
+  const filtered = useMemo(() => {
+    if (activeTab === 1) return allTransactions.filter(tx => tx.type === 'Payment')
+    if (activeTab === 2) return allTransactions.filter(tx => tx.type === 'Refund')
+    if (activeTab === 3) return allTransactions.filter(tx => tx.type === 'Payout')
+    return allTransactions
+  }, [activeTab])
+
   return (
     <div>
       <div className="ph">
@@ -59,7 +70,7 @@ export default function PaymentsPage() {
 
         <div className="tabs">
           {tabs.map((tab, i) => (
-            <div key={tab} className={`tab${i === 0 ? ' active' : ''}`}>{tab}</div>
+            <div key={tab} className={`tab${activeTab === i ? ' active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
           ))}
         </div>
 
@@ -105,7 +116,7 @@ export default function PaymentsPage() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((tx) => (
+              {filtered.map((tx) => (
                 <tr key={tx.txnId}>
                   <td className="td-hide" style={{ fontSize: '11px' }}>{tx.txnId}</td>
                   <td data-label="Type"><span className={`pill ${tx.typeClass}`}>{tx.type}</span></td>
