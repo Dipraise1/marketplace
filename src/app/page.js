@@ -1,6 +1,7 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
-import { listings, orders, topSellers } from '@/lib/data'
+import { listings as initialListings, orders, topSellers } from '@/lib/data'
 
 const barData = [
   { h: '40%', lbl: 'M' },
@@ -12,12 +13,36 @@ const barData = [
   { h: '30%', lbl: 'S' },
 ]
 
+function Toast({ toast }) {
+  if (!toast) return null
+  return <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
+}
+
 export default function DashboardPage() {
-  const previewListings = listings.slice(0, 4)
-  const previewOrders = orders.slice(0, 3)
+  const [items, setItems] = useState(initialListings.slice(0, 4))
+  const [toast, setToast] = useState(null)
+
+  function showToast(msg, type = 'success') {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 2500)
+  }
+
+  function handleApprove(id) {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, status: 'approved' } : i))
+    showToast('Listing approved', 'success')
+  }
+
+  function handleReject(id) {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, status: 'rejected' } : i))
+    showToast('Listing rejected', 'error')
+  }
+
+  const pendingCount = items.filter(i => i.status === 'pending').length
 
   return (
     <div>
+      <Toast toast={toast} />
+
       <div className="ph">
         <div className="ph-left">
           <h1>Overview</h1>
@@ -31,10 +56,7 @@ export default function DashboardPage() {
 
       <div className="stats">
         <div className="stat">
-          <div className="stat-top">
-            <div className="stat-lbl">Total Listings</div>
-            <div className="stat-ic">L</div>
-          </div>
+          <div className="stat-top"><div className="stat-lbl">Total Listings</div><div className="stat-ic">L</div></div>
           <div className="stat-val">1,284</div>
           <div className="stat-sub">+12% this week</div>
         </div>
@@ -55,10 +77,7 @@ export default function DashboardPage() {
           <div className="stat-sub">+8% this month</div>
         </div>
         <div className="stat">
-          <div className="stat-top">
-            <div className="stat-lbl">Total Revenue</div>
-            <div className="stat-ic">$</div>
-          </div>
+          <div className="stat-top"><div className="stat-lbl">Total Revenue</div><div className="stat-ic">$</div></div>
           <div className="stat-val">$24.6k</div>
           <div className="stat-sub">+18% vs last mo</div>
         </div>
@@ -68,7 +87,7 @@ export default function DashboardPage() {
         <div className="panel">
           <div className="panel-hd">
             <div className="panel-title">
-              Listings Approval <span className="cnt">24 pending</span>
+              Listings Approval <span className="cnt">{pendingCount} pending</span>
             </div>
             <Link href="/listings" className="lnk">View all</Link>
           </div>
@@ -76,26 +95,15 @@ export default function DashboardPage() {
             <table>
               <thead>
                 <tr>
-                  <th>Item</th>
-                  <th>Game</th>
-                  <th>Seller</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Action</th>
+                  <th>Item</th><th>Game</th><th>Seller</th><th>Price</th><th>Status</th><th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {previewListings.map((item) => (
+                {items.map((item) => (
                   <tr key={item.id}>
                     <td>
                       <div className="item-cell">
-                        <img
-                          src={item.image}
-                          width={30}
-                          height={30}
-                          style={{ borderRadius: '5px' }}
-                          alt={item.name}
-                        />
+                        <img src={item.image} width={30} height={30} style={{ borderRadius: '5px' }} alt={item.name} />
                         <div>
                           <div className="item-n">{item.name}</div>
                           <div className="item-m">{item.meta}</div>
@@ -114,8 +122,8 @@ export default function DashboardPage() {
                       <div className="acts">
                         {item.status === 'pending' && (
                           <>
-                            <button className="act a-approve">Approve</button>
-                            <button className="act a-reject">Reject</button>
+                            <button className="act a-approve" onClick={() => handleApprove(item.id)}>Approve</button>
+                            <button className="act a-reject"  onClick={() => handleReject(item.id)}>Reject</button>
                           </>
                         )}
                         {item.status === 'approved' && (
@@ -123,7 +131,7 @@ export default function DashboardPage() {
                         )}
                         {item.status === 'rejected' && (
                           <>
-                            <button className="act a-approve">Re-approve</button>
+                            <button className="act a-approve" onClick={() => handleApprove(item.id)}>Re-approve</button>
                             <button className="act a-view">View</button>
                           </>
                         )}
@@ -139,9 +147,7 @@ export default function DashboardPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div className="panel">
             <div className="panel-hd">
-              <div className="panel-title">
-                Recent Orders <span className="cnt">7 active</span>
-              </div>
+              <div className="panel-title">Recent Orders <span className="cnt">7 active</span></div>
               <Link href="/pending" className="lnk">View all</Link>
             </div>
             <div className="chart-wrap">
@@ -155,7 +161,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             </div>
-            {previewOrders.map((order) => (
+            {orders.slice(0, 3).map((order) => (
               <div className="o-item" key={order.id}>
                 <div className="o-row1">
                   <span className="o-id">{order.id}</span>

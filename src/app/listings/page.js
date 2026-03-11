@@ -1,14 +1,62 @@
 'use client'
-import { useState } from 'react'
-import { listings } from '@/lib/data'
+import { useState, useMemo } from 'react'
+import { listings as initialListings } from '@/lib/data'
 
-const tabs = ['All', 'Pending (24)', 'Approved', 'Rejected']
+const TABS = ['All', 'Pending', 'Approved', 'Rejected']
+
+function Toast({ toast }) {
+  if (!toast) return null
+  return <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
+}
 
 export default function ListingsPage() {
+  const [items, setItems] = useState(initialListings)
   const [activeTab, setActiveTab] = useState(0)
+  const [search, setSearch] = useState('')
+  const [gameFilter, setGameFilter] = useState('All Games')
+  const [toast, setToast] = useState(null)
+
+  function showToast(msg, type = 'success') {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 2500)
+  }
+
+  function handleApprove(id) {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, status: 'approved' } : i))
+    showToast('Listing approved', 'success')
+  }
+
+  function handleReject(id) {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, status: 'rejected' } : i))
+    showToast('Listing rejected', 'error')
+  }
+
+  const filtered = useMemo(() => {
+    let result = items
+    if (activeTab === 1) result = result.filter(i => i.status === 'pending')
+    if (activeTab === 2) result = result.filter(i => i.status === 'approved')
+    if (activeTab === 3) result = result.filter(i => i.status === 'rejected')
+    if (gameFilter !== 'All Games') result = result.filter(i => i.game === gameFilter)
+    if (search) result = result.filter(i =>
+      i.name.toLowerCase().includes(search.toLowerCase()) ||
+      i.seller.toLowerCase().includes(search.toLowerCase())
+    )
+    return result
+  }, [items, activeTab, search, gameFilter])
+
+  const pendingCount = items.filter(i => i.status === 'pending').length
+
+  const tabLabels = [
+    `All`,
+    `Pending (${pendingCount})`,
+    `Approved`,
+    `Rejected`,
+  ]
 
   return (
     <div>
+      <Toast toast={toast} />
+
       <div className="ph">
         <div className="ph-left">
           <h1>Listings</h1>
@@ -22,10 +70,7 @@ export default function ListingsPage() {
 
       <div className="three-col">
         <div className="stat">
-          <div className="stat-top">
-            <div className="stat-lbl">Total Listings</div>
-            <div className="stat-ic">L</div>
-          </div>
+          <div className="stat-top"><div className="stat-lbl">Total Listings</div><div className="stat-ic">L</div></div>
           <div className="stat-val">1,284</div>
           <div className="stat-sub">All time</div>
         </div>
@@ -34,7 +79,7 @@ export default function ListingsPage() {
             <div className="stat-lbl">Pending Review</div>
             <div className="stat-ic" style={{ background: 'rgba(254,159,59,0.15)' }}>P</div>
           </div>
-          <div className="stat-val">24</div>
+          <div className="stat-val">{pendingCount}</div>
           <div className="stat-sub neg">Needs action</div>
         </div>
         <div className="stat">
@@ -42,7 +87,7 @@ export default function ListingsPage() {
             <div className="stat-lbl">Rejected</div>
             <div className="stat-ic" style={{ background: 'rgba(224,82,82,0.1)', color: 'var(--red)' }}>R</div>
           </div>
-          <div className="stat-val">38</div>
+          <div className="stat-val">{items.filter(i => i.status === 'rejected').length}</div>
           <div className="stat-sub" style={{ color: 'var(--muted)' }}>This month</div>
         </div>
       </div>
@@ -50,16 +95,22 @@ export default function ListingsPage() {
       <div className="panel">
         <div className="panel-hd">
           <div className="panel-title">
-            All Listings <span className="cnt">1,284 total</span>
+            All Listings <span className="cnt">{filtered.length} shown</span>
           </div>
           <div className="acts">
-            <button className="act a-approve">Bulk Approve</button>
-            <button className="act a-reject">Bulk Reject</button>
+            <button className="act a-approve" onClick={() => {
+              setItems(prev => prev.map(i => i.status === 'pending' ? { ...i, status: 'approved' } : i))
+              showToast('All pending listings approved', 'success')
+            }}>Bulk Approve</button>
+            <button className="act a-reject" onClick={() => {
+              setItems(prev => prev.map(i => i.status === 'pending' ? { ...i, status: 'rejected' } : i))
+              showToast('All pending listings rejected', 'error')
+            }}>Bulk Reject</button>
           </div>
         </div>
 
         <div className="tabs">
-          {tabs.map((tab, i) => (
+          {tabLabels.map((tab, i) => (
             <div
               key={tab}
               className={`tab${activeTab === i ? ' active' : ''}`}
@@ -76,8 +127,10 @@ export default function ListingsPage() {
             type="text"
             placeholder="Search listings..."
             style={{ width: '180px' }}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
-          <select className="filter-input">
+          <select className="filter-input" value={gameFilter} onChange={e => setGameFilter(e.target.value)}>
             <option>All Games</option>
             <option>Adopt Me</option>
             <option>MM2</option>
@@ -89,11 +142,9 @@ export default function ListingsPage() {
             <option>Pets</option>
             <option>Weapons</option>
             <option>Eggs</option>
-            <option>Vehicles</option>
           </select>
           <select className="filter-input">
             <option>Sort: Newest</option>
-            <option>Sort: Oldest</option>
             <option>Sort: Price High</option>
             <option>Sort: Price Low</option>
           </select>
@@ -117,19 +168,20 @@ export default function ListingsPage() {
               </tr>
             </thead>
             <tbody>
-              {listings.map((item) => (
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={11} style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>
+                    No listings match this filter
+                  </td>
+                </tr>
+              )}
+              {filtered.map((item) => (
                 <tr key={item.id}>
                   <td><input type="checkbox" className="cb" /></td>
                   <td style={{ color: 'var(--muted)' }}>{item.id}</td>
                   <td>
                     <div className="item-cell">
-                      <img
-                        src={item.image}
-                        width={30}
-                        height={30}
-                        style={{ borderRadius: '5px' }}
-                        alt={item.name}
-                      />
+                      <img src={item.image} width={30} height={30} style={{ borderRadius: '5px' }} alt={item.name} />
                       <div>
                         <div className="item-n">{item.name}</div>
                         <div className="item-m">{item.meta}</div>
@@ -151,21 +203,21 @@ export default function ListingsPage() {
                     <div className="acts">
                       {item.status === 'pending' && (
                         <>
-                          <button className="act a-approve">Approve</button>
-                          <button className="act a-reject">Reject</button>
+                          <button className="act a-approve" onClick={() => handleApprove(item.id)}>Approve</button>
+                          <button className="act a-reject"  onClick={() => handleReject(item.id)}>Reject</button>
                           <button className="act a-view">View</button>
                         </>
                       )}
                       {item.status === 'approved' && (
                         <>
                           <button className="act a-edit">Edit</button>
-                          <button className="act a-reject">Remove</button>
+                          <button className="act a-reject" onClick={() => handleReject(item.id)}>Remove</button>
                           <button className="act a-view">View</button>
                         </>
                       )}
                       {item.status === 'rejected' && (
                         <>
-                          <button className="act a-approve">Re-approve</button>
+                          <button className="act a-approve" onClick={() => handleApprove(item.id)}>Re-approve</button>
                           <button className="act a-view">View</button>
                         </>
                       )}
@@ -178,7 +230,7 @@ export default function ListingsPage() {
         </div>
 
         <div className="pager">
-          <div className="pager-info">Showing 1&ndash;7 of 1,284</div>
+          <div className="pager-info">Showing {filtered.length} of 1,284</div>
           <div className="pager-btns">
             <button className="pg-btn">&#8592;</button>
             <button className="pg-btn cur">1</button>

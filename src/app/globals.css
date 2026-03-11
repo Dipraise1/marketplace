@@ -717,4 +717,29 @@ textarea.input { resize: vertical; min-height: 70px; font-family: inherit; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
 
 a { text-decoration: none; color: inherit; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.toast {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 9999;
+  animation: slideUp 0.2s ease;
+  pointer-events: none;
+}
+
+.toast-success { background: var(--green); color: #000; }
+.toast-error   { background: var(--red);   color: #fff; }
+.toast-info    { background: var(--accent); color: #000; }
+
+.neg-val  { color: var(--red);  font-weight: 700; }
+.blue-val { color: var(--blue); font-weight: 700; }
 img { display: block; }

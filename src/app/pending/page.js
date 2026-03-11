@@ -1,14 +1,86 @@
 'use client'
-import { useState } from 'react'
-import { orders } from '@/lib/data'
+import { useState, useMemo } from 'react'
+import { orders as initialOrders } from '@/lib/data'
 
-const tabs = ['All (47)', 'Pending Payment (29)', 'In Delivery (18)', 'Disputes (4)']
+const TABS = ['All', 'Pending Payment', 'In Delivery', 'Disputes']
+
+function statusLabel(s) {
+  if (s === 'delivery') return 'In Delivery'
+  if (s === 'pending')  return 'Pending Pay'
+  if (s === 'complete') return 'Complete'
+  if (s === 'cancelled') return 'Cancelled'
+  if (s === 'dispute')  return 'Dispute'
+  return s
+}
+
+function statusPill(s) {
+  if (s === 'delivery')  return 'p-delivery'
+  if (s === 'pending')   return 'p-pending'
+  if (s === 'complete')  return 'p-complete'
+  if (s === 'cancelled') return 'p-rejected'
+  if (s === 'dispute')   return 'p-rejected'
+  return 'p-pending'
+}
+
+function Toast({ toast }) {
+  if (!toast) return null
+  return <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
+}
 
 export default function PendingPage() {
+  const [orderList, setOrderList] = useState(initialOrders)
   const [activeTab, setActiveTab] = useState(0)
+  const [search, setSearch] = useState('')
+  const [toast, setToast] = useState(null)
+
+  function showToast(msg, type = 'success') {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 2500)
+  }
+
+  function markComplete(id) {
+    setOrderList(prev => prev.map(o => o.id === id ? { ...o, status: 'complete' } : o))
+    showToast('Order marked as complete', 'success')
+  }
+
+  function cancelOrder(id) {
+    setOrderList(prev => prev.map(o => o.id === id ? { ...o, status: 'cancelled' } : o))
+    showToast('Order cancelled', 'error')
+  }
+
+  function resolveDispute(id) {
+    setOrderList(prev => prev.map(o => o.id === id ? { ...o, status: 'complete' } : o))
+    showToast('Dispute resolved', 'success')
+  }
+
+  const filtered = useMemo(() => {
+    let result = orderList
+    if (activeTab === 1) result = result.filter(o => o.status === 'pending')
+    if (activeTab === 2) result = result.filter(o => o.status === 'delivery')
+    if (activeTab === 3) result = result.filter(o => o.status === 'dispute')
+    if (search) result = result.filter(o =>
+      o.id.toLowerCase().includes(search.toLowerCase()) ||
+      o.buyer.toLowerCase().includes(search.toLowerCase()) ||
+      o.item.toLowerCase().includes(search.toLowerCase())
+    )
+    return result
+  }, [orderList, activeTab, search])
+
+  const deliveryCount = orderList.filter(o => o.status === 'delivery').length
+  const pendingCount  = orderList.filter(o => o.status === 'pending').length
+  const disputeCount  = orderList.filter(o => o.status === 'dispute').length
+
+  const tabLabels = [
+    `All (${orderList.length})`,
+    `Pending Payment (${pendingCount})`,
+    `In Delivery (${deliveryCount})`,
+    `Disputes (${disputeCount})`,
+  ]
 
   return (
     <div>
+      <Toast toast={toast} />
+
       <div className="ph">
         <div className="ph-left">
           <h1>Pending Orders</h1>
@@ -25,7 +97,7 @@ export default function PendingPage() {
             <div className="stat-lbl">Pending Delivery</div>
             <div className="stat-ic" style={{ background: 'rgba(99,149,255,0.1)', color: 'var(--blue)' }}>D</div>
           </div>
-          <div className="stat-val">18</div>
+          <div className="stat-val">{deliveryCount}</div>
           <div className="stat-sub neg">Awaiting seller</div>
         </div>
         <div className="stat">
@@ -33,7 +105,7 @@ export default function PendingPage() {
             <div className="stat-lbl">Awaiting Payment</div>
             <div className="stat-ic" style={{ background: 'rgba(254,159,59,0.15)' }}>$</div>
           </div>
-          <div className="stat-val">29</div>
+          <div className="stat-val">{pendingCount}</div>
           <div className="stat-sub neg">Buyer action needed</div>
         </div>
         <div className="stat">
@@ -41,7 +113,7 @@ export default function PendingPage() {
             <div className="stat-lbl">Disputes Open</div>
             <div className="stat-ic" style={{ background: 'rgba(224,82,82,0.1)', color: 'var(--red)' }}>!</div>
           </div>
-          <div className="stat-val">4</div>
+          <div className="stat-val">{disputeCount}</div>
           <div className="stat-sub neg">Needs review</div>
         </div>
       </div>
@@ -49,12 +121,12 @@ export default function PendingPage() {
       <div className="panel">
         <div className="panel-hd">
           <div className="panel-title">
-            Order Queue <span className="cnt">47 active</span>
+            Order Queue <span className="cnt">{orderList.filter(o => o.status !== 'complete' && o.status !== 'cancelled').length} active</span>
           </div>
         </div>
 
         <div className="tabs">
-          {tabs.map((tab, i) => (
+          {tabLabels.map((tab, i) => (
             <div
               key={tab}
               className={`tab${activeTab === i ? ' active' : ''}`}
@@ -71,6 +143,8 @@ export default function PendingPage() {
             type="text"
             placeholder="Search order ID or buyer..."
             style={{ width: '200px' }}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
           <select className="filter-input">
             <option>All Games</option>
@@ -101,18 +175,19 @@ export default function PendingPage() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>
+                    No orders match this filter
+                  </td>
+                </tr>
+              )}
+              {filtered.map((order) => (
                 <tr key={order.id}>
                   <td style={{ fontWeight: 700, color: 'var(--accent)' }}>{order.id}</td>
                   <td>
                     <div className="item-cell">
-                      <img
-                        src={order.itemImage}
-                        width={30}
-                        height={30}
-                        style={{ borderRadius: '5px' }}
-                        alt={order.item}
-                      />
+                      <img src={order.itemImage} width={30} height={30} style={{ borderRadius: '5px' }} alt={order.item} />
                       <div>
                         <div className="item-n">{order.item}</div>
                         <div className="item-m">{order.itemMeta}</div>
@@ -125,33 +200,33 @@ export default function PendingPage() {
                   <td className="price-val">{order.amount}</td>
                   <td style={{ color: 'var(--muted)' }}>{order.placed}</td>
                   <td>
-                    {order.status === 'delivery' && <span className="pill p-delivery">In Delivery</span>}
-                    {order.status === 'pending' && <span className="pill p-pending">Pending Pay</span>}
-                    {order.status === 'complete' && <span className="pill p-complete">Complete</span>}
-                    {order.status === 'dispute' && (
-                      <span className="pill p-rejected" style={{ background: 'rgba(224,82,82,0.1)', color: 'var(--red)' }}>Dispute</span>
-                    )}
+                    <span className={`pill ${statusPill(order.status)}`}>
+                      {statusLabel(order.status)}
+                    </span>
                   </td>
                   <td>
                     <div className="acts">
                       {order.status === 'delivery' && (
                         <>
-                          <button className="act a-approve">Mark Complete</button>
+                          <button className="act a-approve" onClick={() => markComplete(order.id)}>Mark Complete</button>
                           <button className="act a-view">View</button>
                         </>
                       )}
                       {order.status === 'pending' && (
                         <>
                           <button className="act a-view">View</button>
-                          <button className="act a-reject">Cancel</button>
+                          <button className="act a-reject" onClick={() => cancelOrder(order.id)}>Cancel</button>
                         </>
                       )}
                       {order.status === 'complete' && (
                         <button className="act a-view">View</button>
                       )}
+                      {order.status === 'cancelled' && (
+                        <button className="act a-view">View</button>
+                      )}
                       {order.status === 'dispute' && (
                         <>
-                          <button className="act a-edit">Resolve</button>
+                          <button className="act a-edit" onClick={() => resolveDispute(order.id)}>Resolve</button>
                           <button className="act a-view">View</button>
                         </>
                       )}
@@ -164,7 +239,7 @@ export default function PendingPage() {
         </div>
 
         <div className="pager">
-          <div className="pager-info">Showing 1&ndash;5 of 47</div>
+          <div className="pager-info">Showing {filtered.length} of {orderList.length}</div>
           <div className="pager-btns">
             <button className="pg-btn">&#8592;</button>
             <button className="pg-btn cur">1</button>
