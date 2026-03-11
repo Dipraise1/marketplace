@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marketplace Admin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #161616;
+      --card: #1d1d1d;
+      --card2: #242424;
+      --accent: #fe9f3b;
+      --accent-dim: rgba(254,159,59,0.1);
+      --text: #e2e2e2;
+      --muted: #666;
+      --border: #2c2c2c;
+      --green: #3ecf63;
+      --red: #e05252;
+      --blue: #6395ff;
+      --sidebar-w: 192px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 100;
+      transition: transform 0.22s ease;
+      overflow-y: auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 17px 15px 15px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .logo-star {
+      width: 24px; height: 24px;
+      background: var(--accent);
+      clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+      flex-shrink: 0;
+    }
+
+    .logo-text { font-size: 13.5px; font-weight: 700; letter-spacing: 0.2px; }
+    .logo-text span { color: var(--accent); }
+
+    nav { padding: 8px 0; flex: 1; }
+
+    .nav-section {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 15px 3px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7.5px 15px;
+      border-radius: 5px;
+      margin: 1px 7px;
+      cursor: pointer;
+      color: #999;
+      font-size: 12.5px;
+      font-weight: 500;
+      transition: all 0.12s;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover { background: var(--card2); color: var(--text); }
+
+    .nav-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: rgba(254,159,59,0.15);
+    }
+
+    .nav-ic {
+      width: 15px;
+      text-align: center;
+      font-style: normal;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #000;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+      line-height: 1.5;
+    }
+
+    .sidebar-foot {
+      padding: 10px 7px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .u-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .u-chip:hover { background: var(--card2); }
+
+    .u-av {
+      width: 26px; height: 26px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #000;
+      flex-shrink: 0;
+    }
+
+    .u-info-name { font-size: 11.5px; font-weight: 600; }
+    .u-info-role { font-size: 10px; color: var(--muted); }
+
+    /* ===== MAIN ===== */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .hamburger {
+      display: none;
+      background: none; border: none;
+      color: var(--text); font-size: 17px;
+      cursor: pointer; padding: 4px;
+    }
+
+    .topbar-title { font-size: 13px; font-weight: 600; }
+    .topbar-sub { font-size: 10.5px; color: var(--muted); margin-left: 3px; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 7px; }
+
+    .search-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5.5px 10px;
+      color: var(--text);
+      font-size: 12px;
+      width: 170px;
+      outline: none;
+    }
+
+    .search-box::placeholder { color: var(--muted); }
+    .search-box:focus { border-color: var(--accent); }
+
+    .tb-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 30px; height: 30px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; transition: all 0.12s;
+    }
+
+    .tb-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .notif-dot {
+      position: absolute; top: 5px; right: 5px;
+      width: 5px; height: 5px;
+      background: var(--accent); border-radius: 50%;
+    }
+
+    /* ===== CONTENT ===== */
+    .content { padding: 18px 20px; flex: 1; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .ph {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ph-left h1 { font-size: 15px; font-weight: 700; }
+    .ph-left p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .ph-right { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 7px 13px;
+      border-radius: 5px;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+      transition: opacity 0.12s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { opacity: 0.82; }
+
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: none; opacity: 1; }
+
+    .btn-danger {
+      background: rgba(224,82,82,0.12);
+      color: var(--red);
+      border: 1px solid rgba(224,82,82,0.2);
+    }
+
+    .btn-danger:hover { opacity: 0.8; }
+
+    /* ===== STAT CARDS ===== */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 13px;
+    }
+
+    .stat-top {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+    }
+
+    .stat-lbl { font-size: 10.5px; color: var(--muted); font-weight: 500; }
+
+    .stat-ic {
+      width: 26px; height: 26px;
+      background: var(--accent-dim);
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--accent);
+    }
+
+    .stat-val { font-size: 21px; font-weight: 700; letter-spacing: -0.5px; }
+    .stat-sub { font-size: 10px; color: var(--green); margin-top: 3px; }
+    .stat-sub.neg { color: var(--red); }
+
+    /* ===== PANEL ===== */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .panel-hd {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap; gap: 8px;
+    }
+
+    .panel-title {
+      font-size: 12.5px; font-weight: 600;
+      display: flex; align-items: center; gap: 7px;
+    }
+
+    .cnt {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      font-size: 9.5px; padding: 2px 7px;
+      border-radius: 10px; color: var(--muted); font-weight: 500;
+    }
+
+    .lnk { font-size: 11px; color: var(--accent); background: none; border: none; cursor: pointer; font-weight: 500; }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0 14px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      font-size: 11.5px; font-weight: 500;
+      padding: 9px 12px;
+      cursor: pointer; color: var(--muted);
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.12s;
+    }
+
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .filter-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 10px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .filter-input:focus { border-color: var(--accent); }
+    .filter-input::placeholder { color: var(--muted); }
+
+    select.filter-input {
+      cursor: pointer;
+      appearance: none;
+      padding-right: 22px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 7px center;
+    }
+
+    .filter-ml { margin-left: auto; }
+
+    /* ===== TABLE ===== */
+    .tbl-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead tr { background: rgba(255,255,255,0.015); }
+
+    th {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 14px;
+      text-align: left; white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(255,255,255,0.018); }
+
+    .cb { width: 14px; height: 14px; cursor: pointer; accent-color: var(--accent); }
+
+    .item-cell { display: flex; align-items: center; gap: 8px; }
+
+    .item-thumb {
+      width: 30px; height: 30px;
+      border-radius: 5px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .item-n { font-weight: 500; font-size: 12px; }
+    .item-m { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    .tag {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      font-size: 10px; padding: 2px 7px;
+      border-radius: 4px; color: #aaa;
+    }
+
+    .price-val { font-weight: 600; color: var(--accent); }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 600;
+      padding: 3px 8px; border-radius: 4px;
+    }
+
+    .pill::before {
+      content: ''; width: 5px; height: 5px;
+      border-radius: 50%;
+    }
+
+    .p-pending  { background: rgba(254,159,59,0.1); color: var(--accent); }
+    .p-pending::before  { background: var(--accent); }
+    .p-approved { background: rgba(62,207,99,0.1); color: var(--green); }
+    .p-approved::before { background: var(--green); }
+    .p-rejected { background: rgba(224,82,82,0.1); color: var(--red); }
+    .p-rejected::before { background: var(--red); }
+    .p-delivery { background: rgba(99,149,255,0.1); color: var(--blue); }
+    .p-delivery::before { background: var(--blue); }
+    .p-complete { background: rgba(62,207,99,0.08); color: var(--green); }
+    .p-complete::before { background: var(--green); }
+    .p-banned   { background: rgba(224,82,82,0.1); color: var(--red); }
+    .p-banned::before   { background: var(--red); }
+    .p-active   { background: rgba(62,207,99,0.1); color: var(--green); }
+    .p-active::before   { background: var(--green); }
+
+    .acts { display: flex; gap: 4px; }
+
+    .act {
+      border: none; padding: 4px 9px;
+      border-radius: 4px; font-size: 10.5px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.12s; white-space: nowrap;
+    }
+
+    .act:hover { opacity: 0.75; }
+    .a-approve { background: rgba(62,207,99,0.12); color: var(--green); }
+    .a-reject  { background: rgba(224,82,82,0.1); color: var(--red); }
+    .a-view    { background: var(--card2); color: var(--muted); border: 1px solid var(--border); }
+    .a-edit    { background: var(--accent-dim); color: var(--accent); }
+    .a-ban     { background: rgba(224,82,82,0.1); color: var(--red); }
+    .a-unban   { background: rgba(62,207,99,0.1); color: var(--green); }
+    .a-msg     { background: rgba(99,149,255,0.1); color: var(--blue); }
+
+    /* ===== PAGINATION ===== */
+    .pager {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 8px;
+    }
+
+    .pager-info { font-size: 11px; color: var(--muted); }
+
+    .pager-btns { display: flex; gap: 4px; }
+
+    .pg-btn {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 28px; height: 28px;
+      border-radius: 4px; font-size: 11px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    .pg-btn.cur { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+    .pg-btn:hover:not(.cur) { border-color: var(--accent); color: var(--accent); }
+
+    /* ===== TWO COL GRID ===== */
+    .two-col { display: grid; grid-template-columns: 1fr 340px; gap: 12px; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+
+    /* ===== ORDER ITEMS ===== */
+    .o-item {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .o-item:last-child { border-bottom: none; }
+    .o-item:hover { background: rgba(255,255,255,0.018); }
+
+    .o-row1 {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 4px;
+    }
+
+    .o-id   { font-size: 11px; font-weight: 700; color: var(--accent); }
+    .o-name { font-size: 12px; font-weight: 500; }
+    .o-meta { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+    /* ===== CHART BARS ===== */
+    .chart-wrap { padding: 14px; }
+    .chart-title { font-size: 10px; color: var(--muted); margin-bottom: 10px; }
+
+    .bars {
+      display: flex; align-items: flex-end;
+      gap: 4px; height: 72px;
+    }
+
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+    .bar {
+      width: 100%;
+      background: var(--accent-dim);
+      border-radius: 3px 3px 0 0;
+      transition: background 0.12s; cursor: pointer;
+    }
+
+    .bar:hover, .bar.hi { background: var(--accent); }
+    .bar-lbl { font-size: 9px; color: var(--muted); }
+
+    /* ===== USER ROW ===== */
+    .u-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .u-row:last-child { border-bottom: none; }
+    .u-row:hover { background: rgba(255,255,255,0.018); cursor: pointer; }
+
+    .u-av-sm {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+
+    .u-n   { font-size: 12px; font-weight: 500; }
+    .u-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .u-val { font-size: 11px; font-weight: 600; color: var(--accent); margin-left: auto; }
+
+    /* ===== PAY ROW ===== */
+    .pay-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pay-row:last-child { border-bottom: none; }
+
+    .pay-ic {
+      width: 28px; height: 28px;
+      border-radius: 5px; background: var(--card2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0;
+    }
+
+    .pay-n   { font-size: 12px; font-weight: 500; }
+    .pay-t   { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .pay-amt { font-size: 12px; font-weight: 700; margin-left: auto; white-space: nowrap; }
+    .pay-amt.in  { color: var(--green); }
+    .pay-amt.out { color: var(--red); }
+
+    /* ===== SETTINGS ===== */
+    .settings-grid { display: grid; grid-template-columns: 220px 1fr; gap: 14px; }
+
+    .settings-nav { background: var(--card); border: 1px solid var(--border); border-radius: 7px; padding: 6px; height: fit-content; }
+
+    .s-nav-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 5px;
+      cursor: pointer; color: var(--muted); font-size: 12.5px;
+      transition: all 0.12s;
+    }
+
+    .s-nav-item:hover { background: var(--card2); color: var(--text); }
+    .s-nav-item.active { background: var(--accent-dim); color: var(--accent); }
+
+    .settings-body { display: flex; flex-direction: column; gap: 12px; }
+
+    .s-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 7px; overflow: hidden;
+    }
+
+    .s-sec-hd {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px; font-weight: 600;
+    }
+
+    .s-sec-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    label { font-size: 11px; font-weight: 500; color: #bbb; }
+
+    .input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px; padding: 7px 10px;
+      color: var(--text); font-size: 12px; outline: none;
+      width: 100%;
+    }
+
+    .input:focus { border-color: var(--accent); }
+    .input::placeholder { color: var(--muted); }
+
+    textarea.input { resize: vertical; min-height: 70px; font-family: inherit; }
+
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 2px 0;
+    }
+
+    .toggle-info { flex: 1; }
+    .toggle-info .t-lbl { font-size: 12px; font-weight: 500; }
+    .toggle-info .t-sub { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+    .toggle {
+      width: 34px; height: 18px;
+      background: var(--border);
+      border-radius: 10px; position: relative;
+      cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    }
+
+    .toggle.on { background: var(--accent); }
+
+    .toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      background: white; border-radius: 50%;
+      transition: transform 0.15s;
+    }
+
+    .toggle.on::after { transform: translateX(16px); }
+
+    .s-foot {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 7px; justify-content: flex-end;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty {
+      padding: 40px 20px;
+      text-align: center; color: var(--muted);
+    }
+
+    .empty-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+    .empty-sub   { font-size: 11.5px; }
+
+    /* ===== OVERLAY / MOBILE ===== */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 99;
+    }
+
+    @media (max-width: 960px) {
+      .two-col { grid-template-columns: 1fr; }
+      .three-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .overlay.open { display: block; }
+      .main { margin-left: 0; }
+      .hamburger { display: flex; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .settings-nav { display: flex; overflow-x: auto; gap: 4px; }
+      .s-nav-item { white-space: nowrap; }
+      .search-box { width: 120px; }
+      .content { padding: 12px; }
+      .three-col { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 420px) {
+      .stats { gap: 8px; }
+      .stat-val { font-size: 18px; }
+      .topbar { padding: 0 12px; }
+      .content { padding: 10px; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-star"></div>
+    <div class="logo-text">Market<span>place</span></div>
+  </div>
+
+  <nav>
+    <div class="nav-section">Main</div>
+    <a class="nav-item active" data-page="dashboard" onclick="goto(this)">
+      <i class="nav-ic">&#9699;</i> Dashboard
+    </a>
+    <a class="nav-item" data-page="listings" onclick="goto(this)">
+      <i class="nav-ic">&#9670;</i> Listings
+      <span class="nav-badge">24</span>
+    </a>
+    <a class="nav-item" data-page="pending" onclick="goto(this)">
+      <i class="nav-ic">&#9711;</i> Pending Orders
+      <span class="nav-badge">7</span>
+    </a>
+    <a class="nav-item" data-page="approved" onclick="goto(this)">
+      <i class="nav-ic">&#10003;</i> Approved Items
+    </a>
+    <div class="nav-section" style="margin-top:6px">Manage</div>
+    <a class="nav-item" data-page="users" onclick="goto(this)">
+      <i class="nav-ic">&#9675;</i> Users
+    </a>
+    <a class="nav-item" data-page="payments" onclick="goto(this)">
+      <i class="nav-ic">&#36;</i> Payments
+    </a>
+    <a class="nav-item" data-page="settings" onclick="goto(this)">
+      <i class="nav-ic">&#9881;</i> Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-foot">
+    <div class="u-chip">
+      <div class="u-av">A</div>
+      <div style="flex:1;min-width:0">
+        <div class="u-info-name">admin</div>
+        <div class="u-info-role">Super Admin</div>
+      </div>
+      <span style="color:var(--muted)">&#8943;</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+  <header class="topbar">
+    <button class="hamburger" onclick="openSidebar()">&#9776;</button>
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <input class="search-box" type="text" placeholder="Search..." />
+      <button class="tb-btn">
+        &#9679;
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ========== DASHBOARD ========== -->
+    <div class="page active" id="pg-dashboard">
+      <div class="ph">
+        <div class="ph-left">
+          <h1>Overview</h1>
+          <p>Wednesday, Mar 11 &mdash; Last 30 days</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost">Export</button>
+          <button class="btn">+ New Listing</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-top">
+            <div class="stat-lbl">Total Listings</div>
+            <div class="stat-ic">L</div>
+          </div>
+          <div class="stat-val">1,284</div>
+          <div class="stat-sub">+12% this week</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top">
+            <div class="stat-lbl">Pending Orders</div>
+            <div class="stat-ic" style="background:rgba(254,159,59,0.15)">P</div>
+          </div>
+          <div class="stat-val">47</div>
+          <div class="stat-sub neg">3 new today</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top">
+            <div class="stat-lbl">Completed Orders</div>
+            <div class="stat-ic" style="background:rgba(62,207,99,0.1);color:var(--green)">C</div>
+          </div>
+          <div class="stat-val">892</div>
+          <div class="stat-sub">+8% this month</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top">
+            <div class="stat-lbl">Total Revenue</div>
+            <div class="stat-ic">$</div>
+          </div>
+          <div class="stat-val">$24.6k</div>
+          <div class="stat-sub">+18% vs last mo</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-hd">
+            <div class="panel-title">Listings Approval <span class="cnt">24 pending</span></div>
+            <button class="lnk" onclick="gotoPage('listings')">View all</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Game</th><th>Seller</th><th>Price</th><th>Status</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="item-cell"><div class="item-thumb">FD</div><div><div class="item-n">Frost Dragon</div><div class="item-m">Pet &middot; Legendary</div></div></div></td>
+                  <td><span class="tag">Adopt Me</span></td><td>user123</td>
+                  <td class="price-val">$10.00</td>
+                  <td><span class="pill p-pending">Pending</span></td>
+                  <td><div class="acts"><button class="act a-approve">Approve</button><button class="act a-reject">Reject</button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="item-cell"><div class="item-thumb">SD</div><div><div class="item-n">Shadow Dragon</div><div class="item-m">Pet &middot; Legendary</div></div></div></td>
+                  <td><span class="tag">Adopt Me</span></td><td>sellerB</td>
+                  <td class="price-val">$34.00</td>
+                  <td><span class="pill p-pending">Pending</span></td>
+                  <td><div class="acts"><button class="act a-approve">Approve</button><button class="act a-reject">Reject</button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="item-cell"><div class="item-thumb">GK</div><div><div class="item-n">Godly Knife</div><div class="item-m">Weapon &middot; Rare</div></div></div></td>
+                  <td><span class="tag">MM2</span></td><td>knifeking</td>
+                  <td class="price-val">$8.50</td>
+                  <td><span class="pill p-approved">Approved</span></td>
+                  <td><div class="acts"><button class="act a-view">View</button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="item-cell"><div class="item-thumb">OE</div><div><div class="item-n">Ocean Egg</div><div class="item-m">Egg &middot; Limited</div></div></div></td>
+                  <td><span class="tag">Adopt Me</span></td><td>eggmaster</td>
+                  <td class="price-val">$5.00</td>
+                  <td><span class="pill p-pending">Pending</span></td>
+                  <td><div class="acts"><button class="act a-approve">Approve</button><button class="act a-reject">Reject</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="panel">
+            <div class="panel-hd">
+              <div class="panel-title">Recent Orders <span class="cnt">7 active</span></div>
+              <button class="lnk" onclick="gotoPage('pending')">View all</button>
+            </div>
+            <div class="chart-wrap">
+              <div class="chart-title">Orders this week</div>
+              <div class="bars">
+                <div class="bar-col"><div class="bar" style="height:40%"></div><div class="bar-lbl">M</div></div>
+                <div class="bar-col"><div class="bar" style="height:65%"></div><div class="bar-lbl">T</div></div>
+                <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-lbl">W</div></div>
+                <div class="bar-col"><div class="bar hi" style="height:100%"></div><div class="bar-lbl">T</div></div>
+                <div class="bar-col"><div class="bar" style="height:75%"></div><div class="bar-lbl">F</div></div>
+                <div class="bar-col"><div class="bar" style="height:45%"></div><div class="bar-lbl">S</div></div>
+                <div class="bar-col"><div class="bar" style="height:30%"></div><div class="bar-lbl">S</div></div>
+              </div>
+            </div>
+            <div class="o-item">
+              <div class="o-row1"><span class="o-id">#1023</span><span class="pill p-delivery">Delivery</span></div>
+              <div class="o-name">Shadow Dragon</div>
+              <div class="o-meta">userA &rarr; sellerB &middot; $34.00</div>
+            </div>
+            <div class="o-item">
+              <div class="o-row1"><span class="o-id">#1022</span><span class="pill p-pending">Pending</span></div>
+              <div class="o-name">Frost Dragon</div>
+              <div class="o-meta">buyer99 &rarr; user123 &middot; $10.00</div>
+            </div>
+            <div class="o-item">
+              <div class="o-row1"><span class="o-id">#1021</span><span class="pill p-complete">Complete</span></div>
+              <div class="o-name">Godly Knife</div>
+              <div class="o-meta">john_x &rarr; knifeking &middot; $8.50</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-hd">
+              <div class="panel-title">Top Sellers</div>
+              <button class="lnk" onclick="gotoPage('users')">View all</button>
+            </div>
+            <div class="u-row">
+              <div class="u-av-sm" style="background:#3ecf6318;color:var(--green)">S</div>
+              <div><div class="u-n">sellerB</div><div class="u-sub">12 listings &middot; 98%</div></div>
+              <div class="u-val">$342</div>
+            </div>
+            <div class="u-row">
+              <div class="u-av-sm" style="background:#6395ff18;color:var(--blue)">T</div>
+              <div><div class="u-n">tradepro</div><div class="u-sub">9 listings &middot; 95%</div></div>
+              <div class="u-val">$215</div>
+            </div>
+            <div class="u-row">
+              <div class="u-av-sm" style="background:var(--accent-dim);color:var(--accent)">U</div>
+              <div><div class="u-n">user123</div><div class="u-sub">7 listings &middot; 100%</div></div>
+              <div class="u-val">$183</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== LISTINGS ========== -->
+    <div class="page" id="pg-listings">
+      <div class="ph">
+        <div class="ph-left">
+          <h1>Listings</h1>
+          <p>All items submitted to the marketplace</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost">Export CSV</button>
+          <button class="btn">+ Add Listing</button>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Total Listings</div><div class="stat-ic">L</div></div>
+          <div class="stat-val">1,284</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Pending Review</div><div class="stat-ic" style="background:rgba(254,159,59,0.15)">P</div></div>
+          <div class="stat-val">24</div>
+          <div class="stat-sub neg">Needs action</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Rejected</div><div class="stat-ic" style="background:rgba(224,82,82,0.1);color:var(--red)">R</div></div>
+          <div class="stat-val">38</div>
+          <div class="stat-sub" style="color:var(--muted)">This month</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">All Listings <span class="cnt">1,284 total</span></div>
+          <div class="acts">
+            <button class="act a-approve">Bulk Approve</button>
+            <button class="act a-reject">Bulk Reject</button>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">All</div>
+          <div class="tab">Pending (24)</div>
+          <div class="tab">Approved</div>
+          <div class="tab">Rejected</div>
+        </div>
+
+        <div class="filter-bar">
+          <input class="filter-input" type="text" placeholder="Search listings..." style="width:180px" />
+          <select class="filter-input">
+            <option>All Games</option>
+            <option>Adopt Me</option>
+            <option>MM2</option>
+            <option>Blox Fruits</option>
+            <option>Pet Sim X</option>
+          </select>
+          <select class="filter-input">
+            <option>All Categories</option>
+            <option>Pets</option>
+            <option>Weapons</option>
+            <option>Eggs</option>
+            <option>Vehicles</option>
+          </select>
+          <select class="filter-input">
+            <option>Sort: Newest</option>
+            <option>Sort: Oldest</option>
+            <option>Sort: Price High</option>
+            <option>Sort: Price Low</option>
+          </select>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="cb" /></th>
+                <th>#</th>
+                <th>Item</th>
+                <th>Game</th>
+                <th>Category</th>
+                <th>Seller</th>
+                <th>Price</th>
+                <th>Views</th>
+                <th>Listed</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td style="color:var(--muted)">1021</td>
+                <td><div class="item-cell"><div class="item-thumb">FD</div><div><div class="item-n">Frost Dragon</div><div class="item-m">Legendary &middot; Neon</div></div></div></td>
+                <td><span class="tag">Adopt Me</span></td>
+                <td><span class="tag">Pet</span></td>
+                <td>user123</td>
+                <td class="price-val">$10.00</td>
+                <td style="color:var(--muted)">142</td>
+                <td style="color:var(--muted)">2h ago</td>
+                <td><span class="pill p-pending">Pending</span></td>
+                <td><div class="acts"><button class="act a-approve">Approve</button><button class="act a-reject">Reject</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td style="color:var(--muted)">1020</td>
+                <td><div class="item-cell"><div class="item-thumb">SD</div><div><div class="item-n">Shadow Dragon</div><div class="item-m">Legendary &middot; Mega</div></div></div></td>
+                <td><span class="tag">Adopt Me</span></td>
+                <td><span class="tag">Pet</span></td>
+                <td>sellerB</td>
+                <td class="price-val">$34.00</td>
+                <td style="color:var(--muted)">389</td>
+                <td style="color:var(--muted)">3h ago</td>
+                <td><span class="pill p-pending">Pending</span></td>
+                <td><div class="acts"><button class="act a-approve">Approve</button><button class="act a-reject">Reject</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td style="color:var(--muted)">1019</td>
+                <td><div class="item-cell"><div class="item-thumb">GK</div><div><div class="item-n">Godly Knife</div><div class="item-m">Rare &middot; Chroma</div></div></div></td>
+                <td><span class="tag">MM2</span></td>
+                <td><span class="tag">Weapon</span></td>
+                <td>knifeking</td>
+                <td class="price-val">$8.50</td>
+                <td style="color:var(--muted)">204</td>
+                <td style="color:var(--muted)">5h ago</td>
+                <td><span class="pill p-approved">Approved</span></td>
+                <td><div class="acts"><button class="act a-edit">Edit</button><button class="act a-reject">Remove</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td style="color:var(--muted)">1018</td>
+                <td><div class="item-cell"><div class="item-thumb">UC</div><div><div class="item-n">Unicorn</div><div class="item-m">Ultra-Rare &middot; Fly Ride</div></div></div></td>
+                <td><span class="tag">Adopt Me</span></td>
+                <td><span class="tag">Pet</span></td>
+                <td>tradepro</td>
+                <td class="price-val">$12.00</td>
+                <td style="color:var(--muted)">77</td>
+                <td style="color:var(--muted)">6h ago</td>
+                <td><span class="pill p-rejected">Rejected</span></td>
+                <td><div class="acts"><button class="act a-approve">Re-approve</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td style="color:var(--muted)">1017</td>
+                <td><div class="item-cell"><div class="item-thumb">OE</div><div><div class="item-n">Ocean Egg</div><div class="item-m">Limited &middot; Hatched</div></div></div></td>
+                <td><span class="tag">Adopt Me</span></td>
+                <td><span class="tag">Egg</span></td>
+                <td>eggmaster</td>
+                <td class="price-val">$5.00</td>
+                <td style="color:var(--muted)">53</td>
+                <td style="color:var(--muted)">8h ago</td>
+                <td><span class="pill p-pending">Pending</span></td>
+                <td><div class="acts"><button class="act a-approve">Approve</button><button class="act a-reject">Reject</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td style="color:var(--muted)">1016</td>
+                <td><div class="item-cell"><div class="item-thumb">BF</div><div><div class="item-n">Buddha Fruit</div><div class="item-m">Permanent &middot; Gamepass</div></div></div></td>
+                <td><span class="tag">Blox Fruits</span></td>
+                <td><span class="tag">Fruit</span></td>
+                <td>fruitdealer</td>
+                <td class="price-val">$6.00</td>
+                <td style="color:var(--muted)">120</td>
+                <td style="color:var(--muted)">10h ago</td>
+                <td><span class="pill p-approved">Approved</span></td>
+                <td><div class="acts"><button class="act a-edit">Edit</button><button class="act a-reject">Remove</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td style="color:var(--muted)">1015</td>
+                <td><div class="item-cell"><div class="item-thumb">DR</div><div><div class="item-n">Dragon Fruit</div><div class="item-m">Permanent &middot; Perm</div></div></div></td>
+                <td><span class="tag">Blox Fruits</span></td>
+                <td><span class="tag">Fruit</span></td>
+                <td>rpgstore</td>
+                <td class="price-val">$9.00</td>
+                <td style="color:var(--muted)">88</td>
+                <td style="color:var(--muted)">12h ago</td>
+                <td><span class="pill p-pending">Pending</span></td>
+                <td><div class="acts"><button class="act a-approve">Approve</button><button class="act a-reject">Reject</button><button class="act a-view">View</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <div class="pager-info">Showing 1&ndash;7 of 1,284</div>
+          <div class="pager-btns">
+            <button class="pg-btn">&#8592;</button>
+            <button class="pg-btn cur">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn" style="width:auto;padding:0 8px">...</button>
+            <button class="pg-btn">184</button>
+            <button class="pg-btn">&#8594;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PENDING ORDERS ========== -->
+    <div class="page" id="pg-pending">
+      <div class="ph">
+        <div class="ph-left">
+          <h1>Pending Orders</h1>
+          <p>Orders waiting for delivery or action</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost">Export</button>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Pending Delivery</div><div class="stat-ic" style="background:rgba(99,149,255,0.1);color:var(--blue)">D</div></div>
+          <div class="stat-val">18</div>
+          <div class="stat-sub neg">Awaiting seller</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Awaiting Payment</div><div class="stat-ic" style="background:rgba(254,159,59,0.15)">$</div></div>
+          <div class="stat-val">29</div>
+          <div class="stat-sub neg">Buyer action needed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Disputes Open</div><div class="stat-ic" style="background:rgba(224,82,82,0.1);color:var(--red)">!</div></div>
+          <div class="stat-val">4</div>
+          <div class="stat-sub neg">Needs review</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">Order Queue <span class="cnt">47 active</span></div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">All (47)</div>
+          <div class="tab">Pending Payment (29)</div>
+          <div class="tab">In Delivery (18)</div>
+          <div class="tab">Disputes (4)</div>
+        </div>
+
+        <div class="filter-bar">
+          <input class="filter-input" type="text" placeholder="Search order ID or buyer..." style="width:200px" />
+          <select class="filter-input">
+            <option>All Games</option>
+            <option>Adopt Me</option>
+            <option>MM2</option>
+            <option>Blox Fruits</option>
+          </select>
+          <select class="filter-input">
+            <option>Sort: Newest</option>
+            <option>Sort: Oldest</option>
+            <option>Sort: Value High</option>
+          </select>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Item</th>
+                <th>Buyer</th>
+                <th>Seller</th>
+                <th>Game</th>
+                <th>Amount</th>
+                <th>Placed</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:700;color:var(--accent)">#1023</td>
+                <td><div class="item-cell"><div class="item-thumb">SD</div><div><div class="item-n">Shadow Dragon</div><div class="item-m">Legendary</div></div></div></td>
+                <td>userA</td><td>sellerB</td>
+                <td><span class="tag">Adopt Me</span></td>
+                <td class="price-val">$34.00</td>
+                <td style="color:var(--muted)">2 min ago</td>
+                <td><span class="pill p-delivery">In Delivery</span></td>
+                <td><div class="acts"><button class="act a-approve">Mark Complete</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:var(--accent)">#1022</td>
+                <td><div class="item-cell"><div class="item-thumb">FD</div><div><div class="item-n">Frost Dragon</div><div class="item-m">Legendary</div></div></div></td>
+                <td>buyer99</td><td>user123</td>
+                <td><span class="tag">Adopt Me</span></td>
+                <td class="price-val">$10.00</td>
+                <td style="color:var(--muted)">14 min ago</td>
+                <td><span class="pill p-pending">Pending Pay</span></td>
+                <td><div class="acts"><button class="act a-view">View</button><button class="act a-reject">Cancel</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:var(--accent)">#1020</td>
+                <td><div class="item-cell"><div class="item-thumb">OE</div><div><div class="item-n">Ocean Egg x2</div><div class="item-m">Limited</div></div></div></td>
+                <td>robloxfan</td><td>eggmaster</td>
+                <td><span class="tag">Adopt Me</span></td>
+                <td class="price-val">$10.00</td>
+                <td style="color:var(--muted)">1h ago</td>
+                <td><span class="pill p-delivery">In Delivery</span></td>
+                <td><div class="acts"><button class="act a-approve">Mark Complete</button><button class="act a-view">View</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:var(--accent)">#1018</td>
+                <td><div class="item-cell"><div class="item-thumb">BF</div><div><div class="item-n">Buddha Fruit</div><div class="item-m">Permanent</div></div></div></td>
+                <td>gamer22</td><td>fruitdealer</td>
+                <td><span class="tag">Blox Fruits</span></td>
+                <td class="price-val">$6.00</td>
+                <td style="color:var(--muted)">2h ago</td>
+                <td><span class="pill p-pending">Pending Pay</span></td>
+                <td><div class="acts"><button class="act a-view">View</button><button class="act a-reject">Cancel</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:var(--accent)">#1015</td>
+                <td><div class="item-cell"><div class="item-thumb">GK</div><div><div class="item-n">Godly Knife</div><div class="item-m">Chroma</div></div></div></td>
+                <td>john_x</td><td>knifeking</td>
+                <td><span class="tag">MM2</span></td>
+                <td class="price-val">$8.50</td>
+                <td style="color:var(--muted)">3h ago</td>
+                <td><span class="pill p-rejected" style="background:rgba(224,82,82,0.1);color:var(--red)">Dispute</span></td>
+                <td><div class="acts"><button class="act a-edit">Resolve</button><button class="act a-view">View</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <div class="pager-info">Showing 1&ndash;5 of 47</div>
+          <div class="pager-btns">
+            <button class="pg-btn">&#8592;</button>
+            <button class="pg-btn cur">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn">&#8594;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== APPROVED ITEMS ========== -->
+    <div class="page" id="pg-approved">
+      <div class="ph">
+        <div class="ph-left">
+          <h1>Approved Items</h1>
+          <p>Live listings visible to buyers</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost">Export</button>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Live Listings</div><div class="stat-ic" style="background:rgba(62,207,99,0.1);color:var(--green)">L</div></div>
+          <div class="stat-val">1,222</div>
+          <div class="stat-sub">Active now</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Sold Today</div><div class="stat-ic">$</div></div>
+          <div class="stat-val">34</div>
+          <div class="stat-sub">+11% vs yesterday</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Avg. Price</div><div class="stat-ic">~</div></div>
+          <div class="stat-val">$9.20</div>
+          <div class="stat-sub" style="color:var(--muted)">Per listing</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">Live Listings <span class="cnt">1,222 live</span></div>
+          <div class="acts">
+            <button class="act a-reject">Bulk Remove</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input class="filter-input" type="text" placeholder="Search approved items..." style="width:180px" />
+          <select class="filter-input">
+            <option>All Games</option>
+            <option>Adopt Me</option>
+            <option>MM2</option>
+            <option>Blox Fruits</option>
+          </select>
+          <select class="filter-input">
+            <option>Sort: Newest</option>
+            <option>Sort: Most Viewed</option>
+            <option>Sort: Price High</option>
+          </select>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="cb" /></th>
+                <th>Item</th>
+                <th>Game</th>
+                <th>Seller</th>
+                <th>Price</th>
+                <th>Views</th>
+                <th>Approved</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td><div class="item-cell"><div class="item-thumb">GK</div><div><div class="item-n">Godly Knife</div><div class="item-m">Weapon &middot; Chroma</div></div></div></td>
+                <td><span class="tag">MM2</span></td><td>knifeking</td>
+                <td class="price-val">$8.50</td>
+                <td style="color:var(--muted)">204</td>
+                <td style="color:var(--muted)">5h ago</td>
+                <td><div class="acts"><button class="act a-edit">Edit</button><button class="act a-reject">Remove</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td><div class="item-cell"><div class="item-thumb">BF</div><div><div class="item-n">Buddha Fruit</div><div class="item-m">Permanent</div></div></div></td>
+                <td><span class="tag">Blox Fruits</span></td><td>fruitdealer</td>
+                <td class="price-val">$6.00</td>
+                <td style="color:var(--muted)">120</td>
+                <td style="color:var(--muted)">10h ago</td>
+                <td><div class="acts"><button class="act a-edit">Edit</button><button class="act a-reject">Remove</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td><div class="item-cell"><div class="item-thumb">DR</div><div><div class="item-n">Dragon Fruit</div><div class="item-m">Permanent</div></div></div></td>
+                <td><span class="tag">Blox Fruits</span></td><td>rpgstore</td>
+                <td class="price-val">$9.00</td>
+                <td style="color:var(--muted)">88</td>
+                <td style="color:var(--muted)">1d ago</td>
+                <td><div class="acts"><button class="act a-edit">Edit</button><button class="act a-reject">Remove</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td><div class="item-cell"><div class="item-thumb">PS</div><div><div class="item-n">Pet Simulator Egg</div><div class="item-m">Exclusive</div></div></div></td>
+                <td><span class="tag">Pet Sim X</span></td><td>petseller</td>
+                <td class="price-val">$3.00</td>
+                <td style="color:var(--muted)">44</td>
+                <td style="color:var(--muted)">2d ago</td>
+                <td><div class="acts"><button class="act a-edit">Edit</button><button class="act a-reject">Remove</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <div class="pager-info">Showing 1&ndash;4 of 1,222</div>
+          <div class="pager-btns">
+            <button class="pg-btn">&#8592;</button>
+            <button class="pg-btn cur">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn" style="width:auto;padding:0 8px">...</button>
+            <button class="pg-btn">175</button>
+            <button class="pg-btn">&#8594;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== USERS ========== -->
+    <div class="page" id="pg-users">
+      <div class="ph">
+        <div class="ph-left">
+          <h1>Users</h1>
+          <p>All registered accounts</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost">Export</button>
+          <button class="btn">+ Invite User</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Total Users</div><div class="stat-ic">U</div></div>
+          <div class="stat-val">3,841</div>
+          <div class="stat-sub">+24 this week</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Active Today</div><div class="stat-ic" style="background:rgba(62,207,99,0.1);color:var(--green)">A</div></div>
+          <div class="stat-val">412</div>
+          <div class="stat-sub">+6% vs yesterday</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Sellers</div><div class="stat-ic">S</div></div>
+          <div class="stat-val">892</div>
+          <div class="stat-sub" style="color:var(--muted)">23% of users</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Banned</div><div class="stat-ic" style="background:rgba(224,82,82,0.1);color:var(--red)">B</div></div>
+          <div class="stat-val">17</div>
+          <div class="stat-sub neg">2 new bans</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">All Users <span class="cnt">3,841 total</span></div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">All</div>
+          <div class="tab">Sellers</div>
+          <div class="tab">Buyers</div>
+          <div class="tab">Banned (17)</div>
+        </div>
+
+        <div class="filter-bar">
+          <input class="filter-input" type="text" placeholder="Search by username or email..." style="width:200px" />
+          <select class="filter-input">
+            <option>All Roles</option>
+            <option>Seller</option>
+            <option>Buyer</option>
+            <option>Admin</option>
+          </select>
+          <select class="filter-input">
+            <option>Sort: Newest</option>
+            <option>Sort: Most Sales</option>
+            <option>Sort: Most Listings</option>
+          </select>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="cb" /></th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Listings</th>
+                <th>Orders</th>
+                <th>Total Sales</th>
+                <th>Joined</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="item-cell">
+                    <div class="u-av-sm" style="background:#3ecf6318;color:var(--green)">S</div>
+                    <div><div class="item-n">sellerB</div><div class="item-m">@sellerb</div></div>
+                  </div>
+                </td>
+                <td><span class="tag">Seller</span></td>
+                <td style="color:var(--muted)">sellerb@mail.com</td>
+                <td>12</td><td>34</td>
+                <td class="price-val">$342</td>
+                <td style="color:var(--muted)">Jan 2025</td>
+                <td><span class="pill p-active">Active</span></td>
+                <td><div class="acts"><button class="act a-view">View</button><button class="act a-msg">Msg</button><button class="act a-ban">Ban</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="item-cell">
+                    <div class="u-av-sm" style="background:#6395ff18;color:var(--blue)">T</div>
+                    <div><div class="item-n">tradepro</div><div class="item-m">@tradepro</div></div>
+                  </div>
+                </td>
+                <td><span class="tag">Seller</span></td>
+                <td style="color:var(--muted)">tradepro@mail.com</td>
+                <td>9</td><td>21</td>
+                <td class="price-val">$215</td>
+                <td style="color:var(--muted)">Feb 2025</td>
+                <td><span class="pill p-active">Active</span></td>
+                <td><div class="acts"><button class="act a-view">View</button><button class="act a-msg">Msg</button><button class="act a-ban">Ban</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="item-cell">
+                    <div class="u-av-sm" style="background:var(--accent-dim);color:var(--accent)">U</div>
+                    <div><div class="item-n">user123</div><div class="item-m">@user123</div></div>
+                  </div>
+                </td>
+                <td><span class="tag">Seller</span></td>
+                <td style="color:var(--muted)">user123@mail.com</td>
+                <td>7</td><td>18</td>
+                <td class="price-val">$183</td>
+                <td style="color:var(--muted)">Mar 2025</td>
+                <td><span class="pill p-active">Active</span></td>
+                <td><div class="acts"><button class="act a-view">View</button><button class="act a-msg">Msg</button><button class="act a-ban">Ban</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="item-cell">
+                    <div class="u-av-sm" style="background:#e0525218;color:var(--red)">B</div>
+                    <div><div class="item-n">badactor99</div><div class="item-m">@badactor99</div></div>
+                  </div>
+                </td>
+                <td><span class="tag">Buyer</span></td>
+                <td style="color:var(--muted)">bad@mail.com</td>
+                <td>0</td><td>3</td>
+                <td class="price-val" style="color:var(--muted)">$0</td>
+                <td style="color:var(--muted)">Mar 2025</td>
+                <td><span class="pill p-banned">Banned</span></td>
+                <td><div class="acts"><button class="act a-view">View</button><button class="act a-unban">Unban</button></div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="item-cell">
+                    <div class="u-av-sm" style="background:#6395ff18;color:var(--blue)">R</div>
+                    <div><div class="item-n">robloxfan</div><div class="item-m">@robloxfan</div></div>
+                  </div>
+                </td>
+                <td><span class="tag">Buyer</span></td>
+                <td style="color:var(--muted)">rfan@mail.com</td>
+                <td>0</td><td>7</td>
+                <td class="price-val" style="color:var(--muted)">$0</td>
+                <td style="color:var(--muted)">Feb 2025</td>
+                <td><span class="pill p-active">Active</span></td>
+                <td><div class="acts"><button class="act a-view">View</button><button class="act a-msg">Msg</button><button class="act a-ban">Ban</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <div class="pager-info">Showing 1&ndash;5 of 3,841</div>
+          <div class="pager-btns">
+            <button class="pg-btn">&#8592;</button>
+            <button class="pg-btn cur">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn" style="width:auto;padding:0 8px">...</button>
+            <button class="pg-btn">769</button>
+            <button class="pg-btn">&#8594;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAYMENTS ========== -->
+    <div class="page" id="pg-payments">
+      <div class="ph">
+        <div class="ph-left">
+          <h1>Payments</h1>
+          <p>All transactions and payouts</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Total Revenue</div><div class="stat-ic">$</div></div>
+          <div class="stat-val">$24.6k</div>
+          <div class="stat-sub">+18% this month</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Platform Fees</div><div class="stat-ic" style="background:rgba(62,207,99,0.1);color:var(--green)">F</div></div>
+          <div class="stat-val">$2.4k</div>
+          <div class="stat-sub">10% per sale</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Refunds Issued</div><div class="stat-ic" style="background:rgba(224,82,82,0.1);color:var(--red)">R</div></div>
+          <div class="stat-val">$184</div>
+          <div class="stat-sub neg">7 refunds</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top"><div class="stat-lbl">Pending Payout</div><div class="stat-ic" style="background:rgba(254,159,59,0.15)">P</div></div>
+          <div class="stat-val">$1.2k</div>
+          <div class="stat-sub neg">Due this week</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">Transaction History <span class="cnt">All time</span></div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">All</div>
+          <div class="tab">Payments In</div>
+          <div class="tab">Refunds</div>
+          <div class="tab">Payouts</div>
+        </div>
+
+        <div class="filter-bar">
+          <input class="filter-input" type="text" placeholder="Search user or order..." style="width:180px" />
+          <input class="filter-input" type="date" style="width:130px;color-scheme:dark" />
+          <input class="filter-input" type="date" style="width:130px;color-scheme:dark" />
+          <select class="filter-input">
+            <option>All Types</option>
+            <option>Payment</option>
+            <option>Refund</option>
+            <option>Payout</option>
+          </select>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tx ID</th>
+                <th>Type</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Item</th>
+                <th>Amount</th>
+                <th>Fee</th>
+                <th>Net</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--muted);font-size:11px">TXN-8821</td>
+                <td><span class="pill p-approved">Payment</span></td>
+                <td>userA</td><td>sellerB</td>
+                <td style="color:var(--muted)">Shadow Dragon</td>
+                <td class="price-val">$34.00</td>
+                <td style="color:var(--muted)">$3.40</td>
+                <td style="color:var(--green);font-weight:600">$30.60</td>
+                <td style="color:var(--muted)">Mar 11, 2:04am</td>
+                <td><span class="pill p-complete">Complete</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted);font-size:11px">TXN-8820</td>
+                <td><span class="pill p-approved">Payment</span></td>
+                <td>buyer99</td><td>user123</td>
+                <td style="color:var(--muted)">Frost Dragon</td>
+                <td class="price-val">$10.00</td>
+                <td style="color:var(--muted)">$1.00</td>
+                <td style="color:var(--green);font-weight:600">$9.00</td>
+                <td style="color:var(--muted)">Mar 11, 1:50am</td>
+                <td><span class="pill p-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted);font-size:11px">TXN-8818</td>
+                <td><span class="pill p-rejected">Refund</span></td>
+                <td>Platform</td><td>gamer22</td>
+                <td style="color:var(--muted)">Unicorn &mdash; Dispute #98</td>
+                <td style="color:var(--red);font-weight:600">-$12.00</td>
+                <td style="color:var(--muted)">$0.00</td>
+                <td style="color:var(--red);font-weight:600">-$12.00</td>
+                <td style="color:var(--muted)">Mar 11, 12:20am</td>
+                <td><span class="pill p-complete">Complete</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted);font-size:11px">TXN-8815</td>
+                <td><span class="pill p-approved">Payment</span></td>
+                <td>robloxfan</td><td>eggmaster</td>
+                <td style="color:var(--muted)">Ocean Egg x2</td>
+                <td class="price-val">$10.00</td>
+                <td style="color:var(--muted)">$1.00</td>
+                <td style="color:var(--green);font-weight:600">$9.00</td>
+                <td style="color:var(--muted)">Mar 10, 10:15pm</td>
+                <td><span class="pill p-complete">Complete</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted);font-size:11px">TXN-8810</td>
+                <td><span class="pill p-delivery">Payout</span></td>
+                <td>Platform</td><td>knifeking</td>
+                <td style="color:var(--muted)">Weekly payout</td>
+                <td style="color:var(--blue);font-weight:600">$76.50</td>
+                <td style="color:var(--muted)">$0.00</td>
+                <td style="color:var(--blue);font-weight:600">$76.50</td>
+                <td style="color:var(--muted)">Mar 10, 6:00pm</td>
+                <td><span class="pill p-complete">Complete</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted);font-size:11px">TXN-8808</td>
+                <td><span class="pill p-approved">Payment</span></td>
+                <td>john_x</td><td>knifeking</td>
+                <td style="color:var(--muted)">Godly Knife</td>
+                <td class="price-val">$8.50</td>
+                <td style="color:var(--muted)">$0.85</td>
+                <td style="color:var(--green);font-weight:600">$7.65</td>
+                <td style="color:var(--muted)">Mar 10, 4:30pm</td>
+                <td><span class="pill p-complete">Complete</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <div class="pager-info">Showing 1&ndash;6 of 4,210</div>
+          <div class="pager-btns">
+            <button class="pg-btn">&#8592;</button>
+            <button class="pg-btn cur">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn" style="width:auto;padding:0 8px">...</button>
+            <button class="pg-btn">702</button>
+            <button class="pg-btn">&#8594;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SETTINGS ========== -->
+    <div class="page" id="pg-settings">
+      <div class="ph">
+        <div class="ph-left">
+          <h1>Settings</h1>
+          <p>Site configuration and preferences</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="settings-nav">
+          <div class="s-nav-item active">General</div>
+          <div class="s-nav-item">Payments</div>
+          <div class="s-nav-item">Notifications</div>
+          <div class="s-nav-item">Security</div>
+          <div class="s-nav-item">Appearance</div>
+          <div class="s-nav-item">API</div>
+        </div>
+
+        <div class="settings-body">
+          <div class="s-section">
+            <div class="s-sec-hd">Site Information</div>
+            <div class="s-sec-body">
+              <div class="field-row">
+                <div class="field">
+                  <label>Site Name</label>
+                  <div style="font-size:13px;font-weight:600;color:var(--text);padding:6px 0">Marketplace</div>
+                </div>
+                <div class="field">
+                  <label>Support Email</label>
+                  <div style="font-size:13px;color:var(--text);padding:6px 0">support@marketplace.gg</div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Site Description</label>
+                <div style="font-size:12.5px;color:var(--muted);padding:6px 0;line-height:1.5">The premier Roblox item trading marketplace.</div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Platform Fee</label>
+                  <div style="font-size:13px;color:var(--text);padding:6px 0">10%</div>
+                </div>
+                <div class="field">
+                  <label>Min Listing Price</label>
+                  <div style="font-size:13px;color:var(--text);padding:6px 0">$1.00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s-section">
+            <div class="s-sec-hd">Listing Controls</div>
+            <div class="s-sec-body">
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="t-lbl">Require manual approval</div>
+                  <div class="t-sub">All new listings must be reviewed before going live</div>
+                </div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="t-lbl">Allow new listings</div>
+                  <div class="t-sub">Sellers can submit new items for approval</div>
+                </div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="t-lbl">Auto-expire inactive listings</div>
+                  <div class="t-sub">Remove listings with no views after 30 days</div>
+                </div>
+                <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="t-lbl">Allow buyer offers</div>
+                  <div class="t-sub">Buyers can submit custom offers below asking price</div>
+                </div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+            <div class="s-foot">
+              <button class="btn btn-ghost">Cancel</button>
+              <button class="btn">Save Changes</button>
+            </div>
+          </div>
+
+          <div class="s-section">
+            <div class="s-sec-hd">Danger Zone</div>
+            <div class="s-sec-body">
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="t-lbl">Maintenance mode</div>
+                  <div class="t-sub">Take the site offline for all non-admin users</div>
+                </div>
+                <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div style="display:flex;gap:8px;padding-top:4px">
+                <button class="btn btn-danger">Clear Listing Cache</button>
+                <button class="btn btn-danger">Reset All Sessions</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  const pages = {
+    dashboard: 'Dashboard',
+    listings:  'Listings',
+    pending:   'Pending Orders',
+    approved:  'Approved Items',
+    users:     'Users',
+    payments:  'Payments',
+    settings:  'Settings'
+  };
+
+  function goto(el) {
+    const page = el.dataset.page;
+    gotoPage(page);
+    el.blur();
+    closeSidebar();
+    return false;
+  }
+
+  function gotoPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    const pg = document.getElementById('pg-' + page);
+    if (pg) pg.classList.add('active');
+
+    const nav = document.querySelector('[data-page="' + page + '"]');
+    if (nav) nav.classList.add('active');
+
+    document.getElementById('page-title').textContent = pages[page] || page;
+  }
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  // Tab switching
+  document.querySelectorAll('.tabs').forEach(group => {
+    group.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+  });
+
+  // Settings nav
+  document.querySelectorAll('.s-nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.closest('.settings-nav').querySelectorAll('.s-nav-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
