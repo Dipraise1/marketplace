@@ -13,14 +13,147 @@ const barData = [
   { h: '30%', lbl: 'S' },
 ]
 
+const GAMES = ['Adopt Me', 'MM2', 'Blox Fruits', 'Pet Sim X', 'Jailbreak', 'Other']
+const CATEGORIES = ['Pet', 'Weapon', 'Egg', 'Fruit', 'Vehicle', 'Gamepass', 'Other']
+
+const blank = { name: '', game: 'Adopt Me', category: 'Pet', meta: '', seller: '', price: '' }
+
+function itemImg(seed) {
+  return `https://api.dicebear.com/8.x/shapes/svg?seed=${seed}&backgroundColor=242424&shapeColor=fe93fb`
+}
+
 function Toast({ toast }) {
   if (!toast) return null
   return <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
 }
 
+function NewListingModal({ onClose, onSubmit }) {
+  const [form, setForm] = useState(blank)
+  const [err, setErr] = useState('')
+
+  function set(field, val) {
+    setForm(prev => ({ ...prev, [field]: val }))
+    setErr('')
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    if (!form.name.trim())   return setErr('Item name is required')
+    if (!form.seller.trim()) return setErr('Seller username is required')
+    if (!form.price || isNaN(form.price) || Number(form.price) <= 0)
+      return setErr('Enter a valid price')
+
+    onSubmit({
+      id: Date.now(),
+      name: form.name.trim(),
+      meta: form.meta.trim() || `${form.category}`,
+      game: form.game,
+      category: form.category,
+      seller: form.seller.trim(),
+      price: `$${Number(form.price).toFixed(2)}`,
+      views: 0,
+      listed: 'just now',
+      status: 'pending',
+      image: itemImg(form.name.toLowerCase().replace(/\s+/g, '')),
+    })
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal">
+        <div className="modal-hd">
+          <div className="modal-title">New Listing</div>
+          <button className="modal-close" onClick={onClose}>&#10005;</button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+
+            <div className="field">
+              <label>Item Name</label>
+              <input
+                className="input"
+                type="text"
+                placeholder="e.g. Frost Dragon"
+                value={form.name}
+                onChange={e => set('name', e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="field-row">
+              <div className="field">
+                <label>Game</label>
+                <select className="input" value={form.game} onChange={e => set('game', e.target.value)}>
+                  {GAMES.map(g => <option key={g}>{g}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label>Category</label>
+                <select className="input" value={form.category} onChange={e => set('category', e.target.value)}>
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div className="field">
+              <label>Rarity / Description</label>
+              <input
+                className="input"
+                type="text"
+                placeholder="e.g. Legendary · Neon"
+                value={form.meta}
+                onChange={e => set('meta', e.target.value)}
+              />
+            </div>
+
+            <div className="field-row">
+              <div className="field">
+                <label>Seller Username</label>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="e.g. user123"
+                  value={form.seller}
+                  onChange={e => set('seller', e.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label>Price ($)</label>
+                <input
+                  className="input"
+                  type="number"
+                  placeholder="0.00"
+                  min="0.01"
+                  step="0.01"
+                  value={form.price}
+                  onChange={e => set('price', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {err && (
+              <div style={{ fontSize: '11.5px', color: 'var(--red)', background: 'rgba(224,82,82,0.08)', padding: '8px 10px', borderRadius: '5px' }}>
+                {err}
+              </div>
+            )}
+
+          </div>
+
+          <div className="modal-foot">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn">Submit Listing</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   const [items, setItems] = useState(initialListings.slice(0, 4))
   const [toast, setToast] = useState(null)
+  const [showModal, setShowModal] = useState(false)
 
   function showToast(msg, type = 'success') {
     setToast({ msg, type })
@@ -37,11 +170,23 @@ export default function DashboardPage() {
     showToast('Listing rejected', 'error')
   }
 
+  function handleNewListing(listing) {
+    setItems(prev => [listing, ...prev])
+    setShowModal(false)
+    showToast(`"${listing.name}" submitted for review`, 'info')
+  }
+
   const pendingCount = items.filter(i => i.status === 'pending').length
 
   return (
     <div>
       <Toast toast={toast} />
+      {showModal && (
+        <NewListingModal
+          onClose={() => setShowModal(false)}
+          onSubmit={handleNewListing}
+        />
+      )}
 
       <div className="ph">
         <div className="ph-left">
@@ -50,7 +195,7 @@ export default function DashboardPage() {
         </div>
         <div className="ph-right">
           <button className="btn btn-ghost">Export</button>
-          <button className="btn">+ New Listing</button>
+          <button className="btn" onClick={() => setShowModal(true)}>+ New Listing</button>
         </div>
       </div>
 
@@ -101,7 +246,7 @@ export default function DashboardPage() {
               <tbody>
                 {items.map((item) => (
                   <tr key={item.id}>
-                    <td>
+                    <td data-label="Item">
                       <div className="item-cell">
                         <img src={item.image} width={30} height={30} style={{ borderRadius: '5px' }} alt={item.name} />
                         <div>
@@ -110,15 +255,15 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </td>
-                    <td><span className="tag">{item.game}</span></td>
-                    <td>{item.seller}</td>
-                    <td className="price-val">{item.price}</td>
-                    <td>
+                    <td data-label="Game"><span className="tag">{item.game}</span></td>
+                    <td data-label="Seller">{item.seller}</td>
+                    <td data-label="Price" className="price-val">{item.price}</td>
+                    <td data-label="Status">
                       <span className={`pill p-${item.status}`}>
                         {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Action">
                       <div className="acts">
                         {item.status === 'pending' && (
                           <>
