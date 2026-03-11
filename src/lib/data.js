@@ -1,5 +1,5 @@
 const itemImg = (seed) =>
-  `https://api.dicebear.com/8.x/shapes/svg?seed=${seed}&backgroundColor=242424&shapeColor=fe9f3b`
+  `https://api.dicebear.com/8.x/shapes/svg?seed=${seed}&backgroundColor=242424&shapeColor=fe93fb`
 
 const userImg = (username) =>
   `https://api.dicebear.com/8.x/pixel-art/svg?seed=${username}&backgroundColor=1d1d1d`

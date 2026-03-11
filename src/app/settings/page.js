@@ -45,7 +45,7 @@ export default function SettingsPage() {
   const [ipWhitelist,   setIpWhitelist]   = useState('')
 
   // Appearance
-  const [accentColor,   setAccentColor]   = useState('#fe9f3b')
+  const [accentColor,   setAccentColor]   = useState('#fe93fb')
   const [compactMode,   setCompactMode]   = useState(false)
   const [showRatings,   setShowRatings]   = useState(true)
 

@@ -103,7 +103,7 @@ export default function PendingPage() {
         <div className="stat">
           <div className="stat-top">
             <div className="stat-lbl">Awaiting Payment</div>
-            <div className="stat-ic" style={{ background: 'rgba(254,159,59,0.15)' }}>$</div>
+            <div className="stat-ic" style={{ background: 'rgba(254,147,251,0.15)' }}>$</div>
           </div>
           <div className="stat-val">{pendingCount}</div>
           <div className="stat-sub neg">Buyer action needed</div>

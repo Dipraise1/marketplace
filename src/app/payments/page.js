@@ -43,7 +43,7 @@ export default function PaymentsPage() {
         <div className="stat">
           <div className="stat-top">
             <div className="stat-lbl">Pending Payout</div>
-            <div className="stat-ic" style={{ background: 'rgba(254,159,59,0.15)' }}>P</div>
+            <div className="stat-ic" style={{ background: 'rgba(254,147,251,0.15)' }}>P</div>
           </div>
           <div className="stat-val">$1.2k</div>
           <div className="stat-sub neg">Due this week</div>

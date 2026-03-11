@@ -23,10 +23,10 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const stats = [
-    { label: 'Total Listings', value: '1,284', icon: <Package size={20} />, color: '#fe9f3b' },
+    { label: 'Total Listings', value: '1,284', icon: <Package size={20} />, color: '#fe93fb' },
     { label: 'Pending Orders', value: '42', icon: <Clock size={20} />, color: '#f59e0b' },
     { label: 'Completed Orders', value: '856', icon: <CheckCircle size={20} />, color: '#10b981' },
-    { label: 'Total Revenue', value: '$12,450', icon: <DollarSign size={20} />, color: '#fe9f3b' },
+    { label: 'Total Revenue', value: '$12,450', icon: <DollarSign size={20} />, color: '#fe93fb' },
   ];
 
   const pendingListings = [
@@ -57,7 +57,7 @@ const App = () => {
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <div style={{ backgroundColor: '#fe9f3b', padding: '6px', borderRadius: '8px', color: '#000' }}>
+          <div style={{ backgroundColor: '#fe93fb', padding: '6px', borderRadius: '8px', color: '#000' }}>
             <TrendingUp size={24} />
           </div>
           <span>StarMarket</span>
@@ -103,7 +103,7 @@ const App = () => {
               <Bell size={18} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#fe9f3b', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: '#000', fontWeight: 'bold' }}>AD</div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#fe93fb', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: '#000', fontWeight: 'bold' }}>AD</div>
             </div>
           </div>
         </header>

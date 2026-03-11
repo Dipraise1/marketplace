@@ -77,7 +77,7 @@ export default function ListingsPage() {
         <div className="stat">
           <div className="stat-top">
             <div className="stat-lbl">Pending Review</div>
-            <div className="stat-ic" style={{ background: 'rgba(254,159,59,0.15)' }}>P</div>
+            <div className="stat-ic" style={{ background: 'rgba(254,147,251,0.15)' }}>P</div>
           </div>
           <div className="stat-val">{pendingCount}</div>
           <div className="stat-sub neg">Needs action</div>

@@ -4,8 +4,8 @@
   --bg: #161616;
   --card: #1d1d1d;
   --card2: #242424;
-  --accent: #fe9f3b;
-  --accent-dim: rgba(254,159,59,0.1);
+  --accent: #fe93fb;
+  --accent-dim: rgba(254,147,251,0.1);
   --text: #e2e2e2;
   --muted: #666;
   --border: #2c2c2c;
@@ -90,7 +90,7 @@ nav { padding: 8px 0; flex: 1; }
 .nav-item.active {
   background: var(--accent-dim);
   color: var(--accent);
-  border-color: rgba(254,159,59,0.15);
+  border-color: rgba(254,147,251,0.15);
 }
 
 .nav-ic {
@@ -439,7 +439,7 @@ tbody tr:hover td { background: rgba(255,255,255,0.018); }
   border-radius: 50%;
 }
 
-.p-pending  { background: rgba(254,159,59,0.1); color: var(--accent); }
+.p-pending  { background: rgba(254,147,251,0.1); color: var(--accent); }
 .p-pending::before  { background: var(--accent); }
 .p-approved { background: rgba(62,207,99,0.1); color: var(--green); }
 .p-approved::before { background: var(--green); }
